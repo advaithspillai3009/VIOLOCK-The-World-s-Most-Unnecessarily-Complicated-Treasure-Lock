@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VioLock — The World's Most Unnecessarily Complicated Treasure Lock</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=JetBrains+Mono:wght@400;600;700&family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=9.4">
+    <link rel="stylesheet" href="{{ url_for('static', filename='comic.css') }}?v=9.4">
+</head>
+<body>
+    <div class="f-hole left">𝆑</div>
+    <div class="f-hole right">𝆑</div>
+    <div class="ancient-particles" id="ambientParticles"></div>
+
+    <!-- =========================================================
+         VIOLOCK — ANIMATED GRAPHIC NOVEL CUTSCENE OVERLAY
+         High-definition Ken Burns pan/zoom, dynamic framing,
+         subtitles, Web Audio soundscape, and instant skip controls.
+         ========================================================= -->
+    <div id="comicCutsceneOverlay">
+        <!-- CinemaScope Letterbox Bars -->
+        <div class="comic-letterbox top"></div>
+        <div class="comic-letterbox bottom"></div>
+
+        <!-- Top HUD Bar: Panel Counter, Voice Toggle, & Skip Button -->
+        <div class="comic-hud-bar">
+            <div id="comicPanelCounter" class="comic-panel-counter">
+                <span class="counter-dot"></span> PANEL 1 / 13
+            </div>
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <button id="comicVoiceToggle" class="comic-voice-toggle" title="Toggle Dialogue Voices">
+                    🗣️ VOICES: ON
+                </button>
+                <button id="comicMusicToggle" class="comic-voice-toggle" title="Toggle Cutscene Music">
+                    🎵 MUSIC: ON
+                </button>
+                <button id="btnComicSkip" class="btn-comic-skip" title="Skip to Game">
+                    ⏭ SKIP CUTSCENE [SPACE/ESC]
+                </button>
+            </div>
+        </div>
+
+        <!-- The Graphic Novel Stage (Centers the Dynamic Frame) -->
+        <div class="comic-stage-wrapper">
+            <div id="comicViewportContainer" class="comic-viewport-container">
+                <!-- Master Comic Image Plane (Pristine 2K Enhanced Quality) -->
+                <img id="comicImagePlane" class="comic-image-plane" src="{{ url_for('static', filename='assets/kaavungal_story_comic_enhanced.jpg') }}" alt="VioLock Graphic Novel Story Strip">
+
+                <!-- Vignette & Flash Shaders -->
+                <div class="comic-vignette-overlay"></div>
+                <div id="comicFlashOverlay" class="comic-flash-overlay"></div>
+            </div>
+        </div>
+
+        <!-- Vault Official Audit Receipt Overlay (Final Slide: King + Receipt) -->
+        <div id="comicReceiptOverlay" class="comic-receipt-overlay hidden">
+            <div class="final-climax-showcase">
+                <!-- Left: Ezhukoyikkal King (Mohanlal) Portrait Card -->
+                <div class="king-portrait-card">
+                    <div class="king-royal-header">
+                        <span class="king-crown-badge">👑 EZHUKOYICKAL KING</span>
+                        <span class="king-title-sub">THE ORIGINAL TREASURE HEIST MASTERMIND</span>
+                    </div>
+                    <div class="king-img-frame">
+                        <img src="{{ url_for('static', filename='assets/ezhukoyikkal_king_mohanlal.jpg') }}" 
+                             alt="Ezhukoyikkal King Mohanlal" 
+                             class="king-portrait-img">
+                        <div class="king-quote-ribbon">
+                            "എന്താ മോനേ ഇങ്ങനെ... hehehe"
+                        </div>
+                    </div>
+                    <p class="king-caption-text">
+                        The Ezhukoyikkal Maharaja took the royal treasure centuries ago and left behind an empty vault.
+                    </p>
+                </div>
+
+                <!-- Right: The Official Audit Receipt -->
+                <div class="violock-audit-receipt">
+                    <div class="receipt-divider">━━━━━━━━━━━━━━━━━━━━━━━━━━</div>
+                    <div class="receipt-header">
+                        <h2 class="receipt-brand">VIOLOCK</h2>
+                        <h3 class="receipt-sub">KAAVUNGAL VAULT</h3>
+                    </div>
+                    <div class="receipt-grid">
+                        <div class="receipt-line">
+                            <span class="receipt-key">AUTHENTICATION:</span>
+                            <span class="receipt-val receipt-success">SUCCESSFUL ✓</span>
+                        </div>
+                        <div class="receipt-line">
+                            <span class="receipt-key">TREASURE:</span>
+                            <span class="receipt-val receipt-zero">0</span>
+                        </div>
+                        <div class="receipt-line">
+                            <span class="receipt-key">MISSION:</span>
+                            <span class="receipt-val receipt-success">COMPLETE ✓</span>
+                        </div>
+                        <div class="receipt-line">
+                            <span class="receipt-key">REWARD:</span>
+                            <span class="receipt-val receipt-none">NONE</span>
+                        </div>
+                        <div class="receipt-line">
+                            <span class="receipt-key">TIME INVESTED:</span>
+                            <span class="receipt-val receipt-warning">SIGNIFICANT</span>
+                        </div>
+                        <div class="receipt-line">
+                            <span class="receipt-key">PURPOSE:</span>
+                            <span class="receipt-val receipt-muted">UNCLEAR</span>
+                        </div>
+                    </div>
+                    <div class="receipt-divider">━━━━━━━━━━━━━━━━━━━━━━━━━━</div>
+                    <div class="receipt-punchline-block">
+                        <div class="punchline-lead">YOU SUCCESSFULLY</div>
+                        <div class="punchline-bold">UNLOCKED ABSOLUTELY NOTHING.</div>
+                    </div>
+                    <div class="receipt-actions">
+                        <button id="btnPlayAgainReceipt" class="btn-vault btn-primary">
+                            ⚡ RE-SEAL VAULT & PLAY AGAIN ➔
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Lower Navigation Hint Bar (No Inserted Dialogues) -->
+        <div id="comicLowerBar" class="comic-lower-bar">
+            <span class="comic-advance-hint">Click anywhere or press Space to advance ➔</span>
+        </div>
+
+        <!-- Royal Title Card Splash (Intro Start Gate) -->
+        <div id="comicTitleCard" class="comic-title-card">
+            <div class="title-card-emblem">𝆑</div>
+            <div class="title-card-pre">ANCIENT ACOUSTIC VERIFICATION PROTOCOL</div>
+            <h1 class="title-card-headline">THE LEGEND OF <span>KAAVUNGAL</span></h1>
+            <p class="title-card-subtitle">
+                Centuries ago, an uncrackable musical safe was forged in stone. Attuned only to the sacred swaras of the classical violin, it held the greatest royal secret...
+            </p>
+            <button id="btnTitleStart" class="btn-title-start">
+                ⚡ BEGIN THE LEGEND ➔
+            </button>
+        </div>
+    </div>
+
+    <!-- =========================================================
+         MAIN GAME SHELL & VAULT DASHBOARD
+         ========================================================= -->
+    <main class="shell">
+        <!-- TOP NAVIGATION BAR -->
+        <header class="topbar vault-border">
+            <div class="brand">
+                <div class="vault-dial">
+                    <div class="dial-inner">
+                        <span class="vault-icon">𝆑</span>
+                    </div>
+                </div>
+                <div>
+                    <h1 class="vault-title">VIOLOCK <span class="accent-gold">VAULT</span></h1>
+                    <span class="vault-sub">The World's Most Unnecessarily Complicated Treasure Lock</span>
+                    <span class="vault-alt-sub">"Ancient Secrets. Musical Authentication. Absolutely No Treasure."</span>
+                </div>
+            </div>
+            <div class="security-status-group">
+                <button id="replayCutsceneBtn" class="btn-replay-cutscene" title="Replay Story Cutscene">
+                    🎬 REPLAY CUTSCENE
+                </button>
+                <div class="security-status">
+                    <span class="status-indicator"></span>
+                    <span id="systemStatusText" class="status-text">KAAVUNGAL VAULT: SEALED</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- VAULT HERO SECTION -->
+        <section class="hero">
+            <div class="hero-left">
+                <div class="eyebrow"><span class="badge-vault">ANCIENT ROYAL TREASURY • KAAVUNGAL DYNASTY</span></div>
+                <h2>The Lost Royal Vault.<br><span class="gold-gradient">Crack the 5 Ancient Seals with Swaras.</span></h2>
+                <p class="subtitle">
+                    The sacred acoustic mechanism is attuned to the royal tonic <b id="heroTonicText">Sa (D)</b>.
+                    Intonate your violin into the microphone to align the 5 cryptographic seals of King Kaavungal.
+                </p>
+            </div>
+            <div class="sa-vault-lock">
+                <div class="lock-bezel">
+                    <div class="lock-spindle">
+                        <span class="lock-label">SHRUTI / SA</span>
+                        <strong id="displayTonicNote" class="tonic-note">D</strong>
+                        <span id="displayTonicFreq" class="freq-tag">293.66 Hz</span>
+                    </div>
+                </div>
+                <div class="scale-selector-wrap">
+                    <label for="scaleSelect" class="scale-select-label">
+                        <span class="selector-dot"></span> VAULT SCALE / SHRUTI
+                    </label>
+                    <div class="select-container">
+                        <select id="scaleSelect" class="vault-select" title="Select Scale (Sa)">
+                            <option value="A">A (220.00 Hz)</option>
+                            <option value="A#">A# / B♭ (233.08 Hz)</option>
+                            <option value="B">B (246.94 Hz)</option>
+                            <option value="C">C (261.63 Hz • 1 Kattai)</option>
+                            <option value="C#">C# / D♭ (277.18 Hz • 1.5 Kattai)</option>
+                            <option value="D" selected>D (293.66 Hz • 2 Kattai)</option>
+                            <option value="D#">D# / E♭ (311.13 Hz • 2.5 Kattai)</option>
+                            <option value="E">E (329.63 Hz • 3 Kattai)</option>
+                            <option value="F">F (349.23 Hz • 4 Kattai)</option>
+                            <option value="F#">F# / G♭ (369.99 Hz • 4.5 Kattai)</option>
+                            <option value="G">G (392.00 Hz • 5 Kattai)</option>
+                            <option value="G#">G# / A♭ (415.30 Hz • 5.5 Kattai)</option>
+                        </select>
+                        <span class="select-arrow">▼</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECURITY CLEARANCE PROGRESS TRACKER -->
+        <section class="levels-rack vault-box">
+            <div class="rack-header">
+                <span class="metal-label">ROYAL VAULT SEAL CLEARANCE</span>
+                <span id="levelName" class="level-badge">Seal I: The First Swara</span>
+            </div>
+            <div class="tumbler-row">
+                <div class="tumbler-dot active" data-level="1"><span class="dot-num">I</span><span class="dot-desc">The First Swara</span></div>
+                <div class="tumbler-line"></div>
+                <div class="tumbler-dot" data-level="2"><span class="dot-num">II</span><span class="dot-desc">Memory of King</span></div>
+                <div class="tumbler-line"></div>
+                <div class="tumbler-dot" data-level="3"><span class="dot-num">III</span><span class="dot-desc">Royal Archive</span></div>
+                <div class="tumbler-line"></div>
+                <div class="tumbler-dot" data-level="4"><span class="dot-num">IV</span><span class="dot-desc">Perfect Swara</span></div>
+                <div class="tumbler-line"></div>
+                <div class="tumbler-dot" data-level="5"><span class="dot-num">V</span><span class="dot-desc">The Final Vault</span></div>
+            </div>
+        </section>
+
+        <!-- MAIN CENTRAL CHALLENGE PANEL (SWARA NOTES & VAULT CHAMBER) -->
+        <section class="challenge-panel vault-box metal-sheen">
+            <div class="rivets-top"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+            
+            <div class="panel-heading">
+                <div>
+                    <span class="metal-label">ACOUSTIC KEYPAD</span>
+                    <h3 id="challengeTitle">Initialize safe sensors to unlock</h3>
+                </div>
+                <div class="scanner-status" id="scannerStatus">
+                    <span class="scanner-blip"></span>
+                    <span id="scannerStatusText">ACOUSTIC RECEIVER: IDLE</span>
+                </div>
+            </div>
+
+            <!-- LIVE OSCILLOSCOPE WAVEFORM CANVAS -->
+            <div class="visualizer-container">
+                <canvas id="audioVisualizer" width="800" height="75"></canvas>
+                <div class="visualizer-overlay">
+                    <span>RESONANCE OSCILLOSCOPE</span>
+                    <span id="visualizerFreq">— Hz</span>
+                </div>
+            </div>
+
+            <!-- DYNAMIC LEVEL MECHANIC HUD (COUNTDOWN TIMER / MEMORY BANNER / STRIKES) -->
+            <div id="levelMechanicBar" class="mechanic-hud-bar hidden">
+                <!-- TIME ATTACK COUNTDOWN (LEVELS 3 & 5) -->
+                <div id="timerContainer" class="timer-display-box hidden">
+                    <span class="timer-icon">⏱️</span>
+                    <span class="timer-label">TIME REMAINING:</span>
+                    <strong id="timerSeconds" class="timer-digits">10.0</strong><span class="timer-unit">s</span>
+                    <div class="timer-progress-track"><div id="timerProgressBar" class="timer-bar-fill"></div></div>
+                </div>
+                <!-- MEMORY PHASE BANNER (LEVELS 2 & 5) -->
+                <div id="memoryPhaseBanner" class="memory-status-box hidden">
+                    <span class="memory-phase-icon">🧠</span>
+                    <div class="memory-phase-text">
+                        <strong id="memoryPhaseTitle">MEMORIZE THE ROYAL SEQUENCE</strong>
+                        <small id="memoryPhaseDesc">Sequence will hide shortly...</small>
+                    </div>
+                    <div class="memory-countdown-track"><div id="memoryCountdownFill"></div></div>
+                </div>
+                <!-- STRIKES / ERROR COUNTER (UNLIMITED TRIES) -->
+                <div id="strikesBox" class="strikes-box hidden">
+                    <span class="strikes-label">TOLERANCE:</span>
+                    <span id="strikesDisplay" class="strikes-dots">UNLIMITED TRIES</span>
+                </div>
+            </div>
+
+            <!-- LEVEL 5: FINAL VAULT AUTHENTICATION MATRIX -->
+            <div id="finalVaultAuthBox" class="final-vault-auth-box hidden">
+                <div class="final-vault-auth-header">
+                    <span class="auth-title">⚡ FINAL VAULT AUTHENTICATION</span>
+                    <span class="auth-sub">ALL SECURITY PROTOCOLS ENGAGED</span>
+                </div>
+                <div class="auth-bars-grid">
+                    <div class="auth-bar-unit">
+                        <div class="auth-bar-label"><span>MEMORY</span><b id="lvl5MemVal">ARMED</b></div>
+                        <div class="auth-bar-track"><div id="lvl5MemBar" class="auth-bar-fill" style="width: 100%;"></div></div>
+                    </div>
+                    <div class="auth-bar-unit">
+                        <div class="auth-bar-label"><span>PITCH</span><b id="lvl5PitchVal">±20¢</b></div>
+                        <div class="auth-bar-track"><div id="lvl5PitchBar" class="auth-bar-fill" style="width: 90%;"></div></div>
+                    </div>
+                    <div class="auth-bar-unit">
+                        <div class="auth-bar-label"><span>RHYTHM</span><b id="lvl5RhythmVal">CADENCE</b></div>
+                        <div class="auth-bar-track"><div id="lvl5RhythmBar" class="auth-bar-fill" style="width: 85%;"></div></div>
+                    </div>
+                    <div class="auth-bar-unit">
+                        <div class="auth-bar-label"><span>CONSISTENCY</span><b id="lvl5ConsistencyVal">STABLE</b></div>
+                        <div class="auth-bar-track"><div id="lvl5ConsistencyBar" class="auth-bar-fill" style="width: 80%;"></div></div>
+                    </div>
+                    <div class="auth-bar-unit">
+                        <div class="auth-bar-label"><span>TIME</span><b id="lvl5TimeVal">30.0s</b></div>
+                        <div class="auth-bar-track"><div id="lvl5TimeBar" class="auth-bar-fill" style="width: 100%;"></div></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- THE CENTRAL SWARA TUMBLERS / UNLOCKED CHAMBER AREA -->
+            <div id="challengeSequence" class="swaras-tumbler-area">
+                <div class="empty-state">
+                    <div class="safe-dial-placeholder">⚙</div>
+                    <p>Press <b>DISENGAGE SAFETY / START</b> to activate acoustic microphone sensor</p>
+                </div>
+            </div>
+
+            <!-- CONTROLS & HINT -->
+            <div class="controls-rack">
+                <div class="button-group">
+                    <button id="startBtn" class="btn-vault btn-primary">
+                        <span class="btn-icon">⚡</span> DISENGAGE SAFETY / START
+                    </button>
+                    <button id="stopBtn" class="btn-vault btn-secondary" disabled>
+                        <span class="btn-icon">🛑</span> ABORT CLEARANCE
+                    </button>
+                </div>
+                <p class="vault-hint">
+                    <span class="hint-bullet">𝆑</span> Intonate clearly into your microphone. Pure, sustained violin pitches align the royal lock pins.
+                </p>
+            </div>
+
+            <div class="rivets-bottom"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+        </section>
+
+        <!-- REAL-TIME TELEMETRY / DETECTOR DASHBOARD -->
+        <section class="dashboard">
+            <!-- PITCH DETECTOR HUD -->
+            <div class="vault-box detector-hud">
+                <div class="hud-header">
+                    <span class="metal-label">ACOUSTIC FREQUENCY SENSOR</span>
+                    <span class="hud-tag">LIVE HUD</span>
+                </div>
+                
+                <div class="detected-display">
+                    <div class="swara-focus">
+                        <span class="readout-label">SENSED SWARA</span>
+                        <strong id="detectedSwara" class="readout-swara">—</strong>
+                    </div>
+                    <div class="target-focus">
+                        <span class="readout-label">TARGET PIN</span>
+                        <strong id="target" class="readout-target">—</strong>
+                    </div>
+                </div>
+
+                <div class="frequency-meter-grid">
+                    <div class="metric-chip">
+                        <span>PITCH</span>
+                        <b id="frequency">— Hz</b>
+                    </div>
+                    <div class="metric-chip">
+                        <span>CONFIDENCE</span>
+                        <b id="confidence">0%</b>
+                    </div>
+                </div>
+
+                <div class="meter-track">
+                    <div id="confidenceBar" class="meter-bar"></div>
+                </div>
+
+                <!-- PRECISION FLAT/SHARP TUNING GAUGE -->
+                <div id="precisionTuningMeter" class="precision-meter-box hidden">
+                    <div class="needle-header">
+                        <span class="needle-label-flat">◀ FLAT</span>
+                        <span id="centsDeviationText" class="cents-readout">0¢ (IN TUNE)</span>
+                        <span class="needle-label-sharp">SHARP ▶</span>
+                    </div>
+                    <div class="needle-track">
+                        <div class="needle-center-notch"></div>
+                        <div id="tuningNeedle" class="tuning-needle"></div>
+                    </div>
+                    <div class="needle-ticks">
+                        <span>-50¢</span><span>-20¢</span><span>0¢</span><span>+20¢</span><span>+50¢</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VAULT BREACH PROGRESS & STATS -->
+            <div class="vault-box progress-hud">
+                <div class="hud-header">
+                    <span class="metal-label">SEAL ALIGNMENT PROGRESS</span>
+                    <b id="progressPercent" class="accent-gold">0%</b>
+                </div>
+
+                <div class="progress-info-row">
+                    <span id="progressText">0 / 0 pins matched</span>
+                    <span class="status-chip">LOCK ACTIVE</span>
+                </div>
+
+                <div class="progress-track">
+                    <div id="progressBar" class="progress-bar-fill"></div>
+                </div>
+
+                <div class="telemetry-stats">
+                    <div class="stat-card">
+                        <span>PITCH ACCURACY</span>
+                        <b id="pitchStat">—</b>
+                    </div>
+                    <div class="stat-card">
+                        <span>STABILITY</span>
+                        <b id="rhythmStat">—</b>
+                    </div>
+                    <div class="stat-card">
+                        <span>CONSISTENCY</span>
+                        <b id="consistencyStat">—</b>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- V.I.O.L.A. SECURITY AI TRANSMISSION -->
+        <section class="vault-box viola-box">
+            <div class="viola-avatar">🏛️</div>
+            <div class="viola-message">
+                <span class="metal-label">V.I.O.L.A. — VIBRATIONAL INTELLIGENCE FOR ORGANIC LIVENESS AUTHENTICATION</span>
+                <p id="violaText">Awaiting initial acoustic vibration. Ready to examine your intonation.</p>
+            </div>
+        </section>
+
+        <!-- LEVEL COMPLETE / INTERSTITIAL MODAL WITH MEMES -->
+        <div id="levelCompleteModal" class="modal-backdrop hidden">
+            <div class="modal-chamber vault-box">
+                <div class="modal-rivets-top"><i></i><i></i><i></i><i></i></div>
+                <div class="modal-header">
+                    <div class="vault-clear-badge">
+                        <span class="lock-cleared-icon">🔓</span>
+                        <span class="modal-badge-title">VAULT SEAL DISENGAGED</span>
+                    </div>
+                    <h3 id="modalLevelTitle">SEAL I UNLOCKED</h3>
+                    <p class="modal-subtitle">Tumbler pins disengaged. Your swara frequencies aligned with the acoustic safe.</p>
+                </div>
+
+                <!-- PERFORMANCE SCORE STRIP -->
+                <div class="modal-score-strip">
+                    <div class="score-pill"><span>Pitch Accuracy</span><b id="modalPitchScore">95%</b></div>
+                    <div class="score-pill"><span>Intonation</span><b id="modalIntonationScore">Master</b></div>
+                    <div class="score-pill"><span>Next Seal</span><b id="modalNextLevel">Seal II</b></div>
+                </div>
+
+                <!-- CREATIVE & FUNNY MEME CONTAINER -->
+                <div id="memeContainer" class="meme-card">
+                    <!-- Dynamically injected funny meme content -->
+                </div>
+
+                <!-- PROCEED ACTION BUTTON -->
+                <div class="modal-actions">
+                    <button id="proceedBtn" class="btn-vault btn-proceed">
+                        PROCEED TO NEXT SEAL ➔
+                    </button>
+                </div>
+                <div class="modal-rivets-bottom"><i></i><i></i><i></i><i></i></div>
+            </div>
+        </div>
+
+        <!-- CHALLENGE FAILED / RETRY MODAL -->
+        <div id="challengeFailModal" class="modal-backdrop hidden">
+            <div class="modal-chamber vault-box fail-chamber">
+                <div class="modal-rivets-top"><i></i><i></i><i></i><i></i></div>
+                <div class="modal-header">
+                    <div class="vault-fail-badge">
+                        <span class="lock-cleared-icon">⚠️</span>
+                        <span class="modal-badge-title">ACOUSTIC SEAL REJECTED</span>
+                    </div>
+                <!-- VIRAL FAILURE AUDIO / ROAST CARD -->
+                <div id="failMemeContainer" class="meme-card" style="border-color: rgba(239, 68, 68, 0.45); background: rgba(15, 23, 42, 0.9);">
+                    <div class="audio-now-playing-pill" style="border-color: rgba(239, 68, 68, 0.6); color: #f87171; background: rgba(239, 68, 68, 0.15);">
+                        <span class="audio-pulse-dot" style="background: #ef4444; box-shadow: 0 0 8px #ef4444;"></span>
+                        <span>NOW ROASTING • MALAYALAM VIRAL</span>
+                        <span class="victory-audio-waveform">
+                            <span style="background: #ef4444;"></span>
+                            <span style="background: #ef4444;"></span>
+                            <span style="background: #ef4444;"></span>
+                            <span style="background: #ef4444;"></span>
+                        </span>
+                    </div>
+                    <div class="meme-art" style="font-size: 38px; margin: 4px 0;">🙏🦁</div>
+                    <h4 class="meme-headline" style="color: #fca5a5; font-size: 17px; font-weight: 800; margin-bottom: 6px;">
+                        "നീ കാൽ പിടിക്കെടാ... നീ കാൽ തൊട്ട് കുമ്പിട്!"
+                    </h4>
+                    <p class="meme-punchline" style="color: #cbd5e1; font-size: 13.5px; line-height: 1.5; background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.25);">
+                        <span style="color: #f87171; font-style: italic; font-weight: 700;">"നീ കരളാണെടാ മോനേ... നീ പുലിയാണെടാ!"</span>
+                        <br>
+                        <span style="color: #94a3b8; font-size: 11.5px; display: inline-block; margin-top: 4px;">
+                            The ancient acoustic safe reset due to intonation failure.
+                        </span>
+                    </p>
+                </div>
+
+                <div class="modal-actions">
+                    <button id="retryBtn" class="btn-vault btn-primary btn-retry">
+                        ⚡ RE-ENGAGE / RETRY SEAL
+                    </button>
+                </div>
+                <div class="modal-rivets-bottom"><i></i><i></i><i></i><i></i></div>
+            </div>
+        </div>
+
+        <!-- =========================================================
+             THE GRAND CLIMAX & ANCIENT NOTE REVEAL MODAL
+             ========================================================= -->
+        <div id="climaxChamberModal" class="modal-backdrop hidden">
+            <div class="modal-chamber vault-box climax-chamber">
+                <div class="modal-rivets-top"><i></i><i></i><i></i><i></i></div>
+
+                <!-- Phase 1: The Giant Vault Doors Open -->
+                <div id="climaxStepDoor" class="climax-step active">
+                    <div class="vault-clear-badge gold-pulse">
+                        <span class="lock-cleared-icon">🏛️</span>
+                        <span class="modal-badge-title">ALL 5 ACOUSTIC SEALS BREACHED</span>
+                    </div>
+                    <h2 class="climax-title">KAAVUNGAL ROYAL TREASURY</h2>
+                    <p class="climax-lead">The Colossal Granite Gates Part...</p>
+                    <div class="climax-doors-graphic">
+                        <div class="stone-door left-door"></div>
+                        <div class="stone-portal-glow"></div>
+                        <div class="stone-door right-door"></div>
+                    </div>
+                    <p class="climax-narrative">
+                        With a deep subterranean tremor that echoes through centuries of stone, the colossal monolithic gates grind open. 
+                        The air of five hundred years rushes past your face.
+                    </p>
+                    <button id="enterTreasuryBtn" class="btn-vault btn-proceed">
+                        STEP INTO THE TREASURY ➔
+                    </button>
+                </div>
+
+                <!-- Phase 2: The Discovery (Treasure is GONE!) -->
+                <div id="climaxStepEmpty" class="climax-step">
+                    <div class="vault-fail-badge">
+                        <span class="lock-cleared-icon">⚠️</span>
+                        <span class="modal-badge-title">ANOMALY DETECTED</span>
+                    </div>
+                    <h2 class="climax-title">WAIT... SOMETHING IS WRONG</h2>
+                    <div class="empty-chamber-visual">
+                        <div class="empty-pedestal-icon">🪨</div>
+                        <div class="spider-web">🕸️</div>
+                    </div>
+                    <p class="climax-narrative text-danger">
+                        Your torchlight sweeps across the vast cavernous royal hall...<br>
+                        The massive gold chests are smashed and empty. The gemstone pedestals are bare.<br>
+                        <strong>THE ENTIRE ROYAL TREASURE IS GONE.</strong>
+                    </p>
+                    <p class="climax-subnarrative">
+                        In the exact center of the grand royal pedestal, resting under the dust, lies a single folded parchment note...
+                    </p>
+                    <button id="inspectNoteBtn" class="btn-vault btn-primary">
+                        📜 INSPECT THE ANCIENT NOTE ➔
+                    </button>
+                </div>
+
+                <!-- Phase 3: The Ancient Note Reveal -->
+                <div id="climaxStepNote" class="climax-step">
+                    <div class="vault-clear-badge">
+                        <span class="lock-cleared-icon">📜</span>
+                        <span class="modal-badge-title">HISTORICAL ARTIFACT RECOVERED</span>
+                    </div>
+                    <h2 class="climax-title">THE NOTE ON THE PEDESTAL</h2>
+                    <p class="climax-note-caption">Left behind in the center of the royal pedestal:</p>
+
+                    <div class="ancient-parchment-frame">
+                        <div class="parchment-seal-corner top-left">𑁍</div>
+                        <div class="parchment-seal-corner top-right">𑁍</div>
+                        <img id="climaxNoteImage" src="{{ url_for('static', filename='assets/climax_note_enhanced.jpg') }}" alt="Ancient Note left by Ezhukoyickal King" class="ancient-note-img">
+                        <div class="parchment-seal-corner bottom-left">𑁍</div>
+                        <div class="parchment-seal-corner bottom-right">𑁍</div>
+                    </div>
+
+                    <button id="scanNoteBtn" class="btn-vault btn-proceed">
+                        🔍 COMMENCE V.I.O.L.A. FORENSIC SCAN ➔
+                    </button>
+                </div>
+
+                <!-- Phase 4: V.I.O.L.A. Forensic Analysis -->
+                <div id="climaxStepAnalysis" class="climax-step">
+                    <div class="vault-clear-badge">
+                        <span class="lock-cleared-icon">🤖</span>
+                        <span class="modal-badge-title">V.I.O.L.A. FORENSIC TELEMETRY</span>
+                    </div>
+                    <h2 class="climax-title">ANALYSING HISTORICAL DOCUMENT...</h2>
+                    
+                    <div class="scan-progress-box">
+                        <div class="scan-bar-track">
+                            <div id="violaScanBar" class="scan-bar-fill"></div>
+                        </div>
+                        <span id="violaScanPercent" class="scan-pct">0%</span>
+                    </div>
+
+                    <div id="violaScanLog" class="forensic-log-terminal">
+                        <div class="log-line">> INITIALIZING SPECTROMETRY ON PARCHMENT FIBERS...</div>
+                    </div>
+
+                    <button id="viewFinalAuditBtn" class="btn-vault btn-primary hidden" style="margin-top: 20px;">
+                        REVEAL FINAL AUDIT & PERFORMANCE ➔
+                    </button>
+                </div>
+
+                <!-- Phase 5: Final Punchline Result Screen -->
+                <div id="climaxStepResults" class="climax-step">
+                    <div class="final-climax-showcase">
+                        <!-- Left: Ezhukoyikkal King (Mohanlal) Portrait Card -->
+                        <div class="king-portrait-card">
+                            <div class="king-royal-header">
+                                <span class="king-crown-badge">👑 EZHUKOYICKAL KING</span>
+                                <span class="king-title-sub">THE ORIGINAL TREASURE HEIST MASTERMIND</span>
+                            </div>
+                            <div class="king-img-frame">
+                                <img src="{{ url_for('static', filename='assets/ezhukoyikkal_king_mohanlal.jpg') }}" 
+                                     alt="Ezhukoyikkal King Mohanlal" 
+                                     class="king-portrait-img">
+                                <div class="king-quote-ribbon">
+                                    "എന്താ മോനേ ഇങ്ങനെ... hehehe"
+                                </div>
+                            </div>
+                            <p class="king-caption-text">
+                                The Ezhukoyikkal Maharaja took the royal treasure centuries ago and left behind an empty vault.
+                            </p>
+                        </div>
+
+                        <!-- Right: The Official Audit Receipt -->
+                        <div class="violock-audit-receipt">
+                            <div class="receipt-divider">━━━━━━━━━━━━━━━━━━━━━━━━━━</div>
+                            <div class="receipt-header">
+                                <h2 class="receipt-brand">VIOLOCK</h2>
+                                <h3 class="receipt-sub">KAAVUNGAL VAULT</h3>
+                            </div>
+                            <div class="receipt-grid">
+                                <div class="receipt-line">
+                                    <span class="receipt-key">AUTHENTICATION:</span>
+                                    <span class="receipt-val receipt-success">SUCCESSFUL ✓</span>
+                                </div>
+                                <div class="receipt-line">
+                                    <span class="receipt-key">TREASURE:</span>
+                                    <span class="receipt-val receipt-zero">0</span>
+                                </div>
+                                <div class="receipt-line">
+                                    <span class="receipt-key">MISSION:</span>
+                                    <span class="receipt-val receipt-success">COMPLETE ✓</span>
+                                </div>
+                                <div class="receipt-line">
+                                    <span class="receipt-key">REWARD:</span>
+                                    <span class="receipt-val receipt-none">NONE</span>
+                                </div>
+                                <div class="receipt-line">
+                                    <span class="receipt-key">TIME INVESTED:</span>
+                                    <span class="receipt-val receipt-warning">SIGNIFICANT</span>
+                                </div>
+                                <div class="receipt-line">
+                                    <span class="receipt-key">PURPOSE:</span>
+                                    <span class="receipt-val receipt-muted">UNCLEAR</span>
+                                </div>
+                            </div>
+                            <div class="receipt-divider">━━━━━━━━━━━━━━━━━━━━━━━━━━</div>
+                            <div class="receipt-punchline-block">
+                                <div class="punchline-lead">YOU SUCCESSFULLY</div>
+                                <div class="punchline-bold">UNLOCKED ABSOLUTELY NOTHING.</div>
+                            </div>
+                            <div class="receipt-actions">
+                                <button id="replayQuestBtn" class="btn-vault btn-primary">
+                                    ⚡ RE-SEAL VAULT / PLAY AGAIN
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-rivets-bottom"><i></i><i></i><i></i><i></i></div>
+            </div>
+        </div>
+
+        <footer class="vault-footer">
+            <span>VIOLOCK — KAAVUNGAL ROYAL VAULT</span> • <span>SECURING ABSOLUTELY NOTHING SINCE TIME IMMEMORIAL</span>
+        </footer>
+    </main>
+
+    <!-- Scripts -->
+    <script src="{{ url_for('static', filename='comicScenes.js') }}?v=9.4"></script>
+    <script src="{{ url_for('static', filename='comic.js') }}?v=9.4"></script>
+    <script src="{{ url_for('static', filename='script.js') }}?v=9.4"></script>
+</body>
+</html>

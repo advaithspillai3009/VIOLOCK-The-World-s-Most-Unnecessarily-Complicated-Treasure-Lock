@@ -1,0 +1,252 @@
+/* =========================================================
+   VIOLOCK — CINEMATIC CUTSCENE VIDEO STYLING
+   Fullscreen 16:9 presentation, CinemaScope letterbox bars,
+   stylish skip button, unmute banner, and fallback card.
+   ========================================================= */
+
+#videoCutsceneOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: #000000;
+    z-index: 999999;
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+    user-select: none;
+}
+
+#videoCutsceneOverlay.active {
+    display: flex;
+    opacity: 1;
+}
+
+#videoCutsceneOverlay.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* CinemaScope Letterbox Bars */
+.video-letterbox {
+    position: absolute;
+    left: 0;
+    width: 100%;
+    height: 6vh;
+    background: #000000;
+    z-index: 10;
+    pointer-events: none;
+}
+
+.video-letterbox.top {
+    top: 0;
+    border-bottom: 1px solid rgba(212, 175, 55, 0.15);
+}
+
+.video-letterbox.bottom {
+    bottom: 0;
+    border-top: 1px solid rgba(212, 175, 55, 0.15);
+}
+
+/* Video Stage Container (Maintains 16:9 Max Ratio) */
+.video-stage-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    max-width: 177.78vh; /* 16:9 aspect ratio cap based on height */
+    max-height: 56.25vw; /* 16:9 aspect ratio cap based on width */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #000000;
+}
+
+#cutsceneVideoPlayer {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    background: #000000;
+    outline: none;
+}
+
+/* Top HUD Action Bar */
+.video-hud-bar {
+    position: absolute;
+    top: 24px;
+    right: 28px;
+    z-index: 20;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.btn-cutscene-skip {
+    background: rgba(15, 20, 25, 0.75);
+    border: 1px solid rgba(212, 175, 55, 0.5);
+    color: #e6ca65;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.82rem;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    padding: 10px 18px;
+    border-radius: 6px;
+    cursor: pointer;
+    backdrop-filter: blur(8px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.6);
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-cutscene-skip:hover {
+    background: rgba(212, 175, 55, 0.2);
+    border-color: #d4af37;
+    color: #ffffff;
+    box-shadow: 0 0 16px rgba(212, 175, 55, 0.4);
+    transform: translateY(-1px);
+}
+
+.btn-cutscene-skip:active {
+    transform: translateY(1px);
+}
+
+/* Unmute Click / Tap Notice */
+#cutsceneUnmutePrompt {
+    position: absolute;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 20;
+    background: rgba(10, 15, 20, 0.88);
+    border: 1px solid rgba(255, 193, 7, 0.6);
+    color: #ffc107;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    padding: 10px 22px;
+    border-radius: 30px;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 0 20px rgba(255, 193, 7, 0.25);
+    cursor: pointer;
+    animation: pulseGlow 2s infinite ease-in-out;
+}
+
+#cutsceneUnmutePrompt.hidden {
+    display: none !important;
+}
+
+@keyframes pulseGlow {
+    0%, 100% {
+        box-shadow: 0 0 15px rgba(255, 193, 7, 0.2);
+        transform: translateX(-50%) scale(1);
+    }
+    50% {
+        box-shadow: 0 0 25px rgba(255, 193, 7, 0.5);
+        transform: translateX(-50%) scale(1.02);
+    }
+}
+
+/* Resilient Placeholder Card (Shown if User MP4 file is not yet placed) */
+#cutscenePlaceholderCard {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 25;
+    background: rgba(13, 17, 23, 0.95);
+    border: 1px solid rgba(212, 175, 55, 0.4);
+    border-radius: 12px;
+    padding: 36px 44px;
+    max-width: 580px;
+    width: 90%;
+    text-align: center;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8), 0 0 30px rgba(212, 175, 55, 0.15);
+    backdrop-filter: blur(12px);
+}
+
+#cutscenePlaceholderCard.hidden {
+    display: none !important;
+}
+
+.placeholder-icon {
+    font-size: 3rem;
+    margin-bottom: 12px;
+    display: inline-block;
+    filter: drop-shadow(0 0 12px rgba(212, 175, 55, 0.5));
+}
+
+.placeholder-title {
+    font-family: 'Cinzel', serif;
+    font-size: 1.4rem;
+    color: #f1d77a;
+    letter-spacing: 2px;
+    margin-bottom: 8px;
+    font-weight: 700;
+}
+
+.placeholder-desc {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    color: #a0aec0;
+    font-size: 0.92rem;
+    line-height: 1.5;
+    margin-bottom: 18px;
+}
+
+.placeholder-path-box {
+    background: #080b10;
+    border: 1px dashed rgba(212, 175, 55, 0.35);
+    border-radius: 6px;
+    padding: 10px 14px;
+    margin-bottom: 18px;
+}
+
+.placeholder-path-box span {
+    display: block;
+    font-size: 0.75rem;
+    color: #718096;
+    letter-spacing: 1px;
+    margin-bottom: 4px;
+    font-family: 'JetBrains Mono', monospace;
+}
+
+.placeholder-path-box code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.88rem;
+    color: #48bb78;
+    font-weight: 600;
+}
+
+.placeholder-note {
+    font-size: 0.8rem;
+    color: #718096;
+    margin-bottom: 22px;
+    font-style: italic;
+}
+
+.btn-placeholder-proceed {
+    background: linear-gradient(135deg, #d4af37, #aa820a);
+    border: none;
+    color: #0b0f14;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: 0.9rem;
+    letter-spacing: 1.5px;
+    padding: 12px 24px;
+    border-radius: 6px;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
+    transition: all 0.2s ease;
+}
+
+.btn-placeholder-proceed:hover {
+    background: linear-gradient(135deg, #f0ca4d, #c4991c);
+    box-shadow: 0 0 20px rgba(212, 175, 55, 0.5);
+    transform: translateY(-2px);
+}
